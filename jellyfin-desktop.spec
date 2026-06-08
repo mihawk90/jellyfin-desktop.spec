@@ -4,36 +4,38 @@
 %global debug_package %{nil}
 %endif
 
-%global srcname jellyfin-desktop
+%global srcname jellyfin-desktop-qt
 
 Name:           jellyfin-desktop
-Version:        2.0.0
+Version:        2.1.0~pre1
 Release:        1%{?dist}
 Summary:        Jellyfin's official Desktop Client
 
 # LICENSE does not use "or later" terminology
 License:        GPL-2.0-only
 URL:            https://github.com/jellyfin/%{srcname}
-Source0:        %{url}/archive/v%{version}.tar.gz
-Source1:        https://raw.githubusercontent.com/jellyfin/jellyfin-desktop/master/resources/meta/org.jellyfin.JellyfinDesktop.appdata.xml
+Source0:        %{url}/archive/v%{version_no_tilde}.tar.gz
 
 BuildRequires:  cmake
 BuildRequires:  g++
+BuildRequires:  libappstream-glib
+BuildRequires:  desktop-file-utils
+
+#e.g. find_package() is typically cmake() name as long as it's not a vendored definition (e.g. FindFoo.cmake file).
+#pkg_check_modules() is typically pkgconfig() name
 
 # optional in CMake
 BuildRequires:  libcec-devel
 
 # required in CMake
-BuildRequires:  mpvqt-devel
+BuildRequires:  cmake(MpvQt)
 BuildRequires:  qt6-qtwebengine-devel
-
 
 # not in CMake output
 # qt6-wayland-dev
 #BuildRequires:  qt6-qtwayland-devel
 # libegl1-mesa-dev
 #BuildRequires:  mesa-libEGL-devel
-
 
 # all pulled via implicit dependencies
 #BuildRequires:  qt6-qtbase-devel
@@ -66,7 +68,7 @@ without transcoding.
 
 
 %prep
-%autosetup -n %{srcname}-%{version} -p1
+%autosetup -n %{srcname}-%{version_no_tilde} -p1
 
 
 %build
@@ -76,17 +78,13 @@ without transcoding.
 %cmake_build
 
 
-#check
-#echo ">>>>>> check section <<<<<<<"
-#echo $(pwd)
-#ctest --output-on-failure
-
-
 %install
 %cmake_install
 
-# the appdata in the tarball is outdated and was fixed 10 days after the release
-install %{SOURCE1} %{buildroot}%{_datadir}/metainfo/org.jellyfin.JellyfinDesktop.appdata.xml
+
+%check
+desktop-file-validate %{buildroot}%{_datadir}/applications/org.jellyfin.JellyfinDesktop.desktop
+appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %files
@@ -94,9 +92,14 @@ install %{SOURCE1} %{buildroot}%{_datadir}/metainfo/org.jellyfin.JellyfinDesktop
 %license LICENSE
 %{_bindir}/jellyfin-desktop
 %{_datadir}/applications/org.jellyfin.JellyfinDesktop.desktop
-%{_datadir}/metainfo/org.jellyfin.JellyfinDesktop.appdata.xml
+%{_metainfodir}/org.jellyfin.JellyfinDesktop.appdata.xml
 %{_datadir}/icons/hicolor/scalable/apps/org.jellyfin.JellyfinDesktop.svg
 
+
 %changelog
+* Sat Nov 07 2026 Tarulia <mihawk.90+git@googlemail.com> - 2.1.0~pre1-1
+- new version
+- removed manual appdata download and install
+
 * Wed Feb 18 2026 Tarulia <mihawk.90+git@googlemail.com> - 2.0.0-1
 - initial packaging
