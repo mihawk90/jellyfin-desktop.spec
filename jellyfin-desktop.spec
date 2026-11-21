@@ -7,7 +7,7 @@
 %global srcname jellyfin-desktop
 
 Name:           jellyfin-desktop
-Version:        2.1.0~pre1
+Version:        2.1.0~pre2
 Release:        1%{?dist}
 Summary:        Jellyfin's official Desktop Client
 
@@ -97,6 +97,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml
 
 
 %changelog
+* Sat Nov 21 2026 Tarulia <mihawk.90+git@googlemail.com> - 2.1.0~pre2-1
+- new version
+
 * Sat Nov 07 2026 Tarulia <mihawk.90+git@googlemail.com> - 2.1.0~pre1-1
 - new version
 - removed manual appdata download and install
